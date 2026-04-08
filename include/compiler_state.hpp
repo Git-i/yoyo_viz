@@ -1,3 +1,4 @@
+#pragma once
 #include <QObject>
 #include "qqmlintegration.h"
 #include "qquicktextdocument.h"
@@ -22,7 +23,7 @@ public:
     Q_INVOKABLE void compile();
     ~CompilerState();
     void setStatus(Status s);
-private:
+public:
     QQuickTextDocument* document;
     Yoyo::YVMEngine engine;
     std::atomic<Status> status;

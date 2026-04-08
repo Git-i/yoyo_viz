@@ -17,12 +17,14 @@ dependencies = [
 ]
 headers = [
     'include/highlighter.hpp',
-    'include/compiler_state.hpp'
+    'include/compiler_state.hpp',
+    'include/ast_tree_view_model.hpp'
 ]
 sources = [
     'yoyo_viz.cpp',
     'src/highlighter.cpp',
-    'src/compiler_state.cpp'
+    'src/compiler_state.cpp',
+    'src/ast_tree_view_model.cpp'
 ]
 inc = ['include/']
 sources += qt6.qml_module(
