@@ -16,26 +16,38 @@ dependencies = [
     qt_dep, yoyoc, dependency('tree-sitter'), ts_yoyo_dep
 ]
 headers = [
-    'include/highlighter.hpp'
+    'include/highlighter.hpp',
+    'include/compiler_state.hpp'
 ]
 sources = [
     'yoyo_viz.cpp',
-    'src/highlighter.cpp'
+    'src/highlighter.cpp',
+    'src/compiler_state.cpp'
 ]
+inc = ['include/']
 sources += qt6.qml_module(
     'YoyoViz',
     version: '0.1',
     qml_sources: [
         'qml/Main.qml',
-        'qml/Editor.qml'
+        'qml/Editor.qml',
+        'qml/ParserOutput.qml',
+        'qml/OutputViewer.qml'
     ],
-
 )
-moc_files = qt6.compile_moc(headers: headers)
+sources += qt6.qml_module(
+    'com.yoyoviz.cpp',
+    version: '1.0',
+    moc_headers: headers,
+    include_directories: inc,
+    dependencies: qt_dep
+)
+# moc_files = qt6.compile_moc(headers: headers)
 exe = executable(
   'yoyo_viz',
-  sources, moc_files,
+  sources,
   dependencies : dependencies,
+  include_directories: inc,
   install : true,
 )
 

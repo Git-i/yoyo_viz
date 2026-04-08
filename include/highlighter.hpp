@@ -1,27 +1,14 @@
 #pragma once
-#include "qtextdocument.h"
+#include "tree_sitter/api.h"
+#include <yoyo_highlighter.hpp>
 #include <print>
 #include <QQuickTextDocument>
 #include <QSyntaxHighlighter>
-extern "C" {
-struct TSTree;
-struct TSParser;
-}
-class YoyoHighlighter : public QSyntaxHighlighter {
-    Q_OBJECT
-public:
-    TSTree* tree = nullptr;
-    TSParser* parser = nullptr;
-    explicit YoyoHighlighter(QObject* parent);
-    void highlightBlock(const QString& text) override {}
-    void refreshHighlights(int position, int removed, int added);
-    void changeDocument(QTextDocument* doc);
-    void initialHighlight();
-    ~YoyoHighlighter();
-};
+#include <QtQml/qqmlregistration.h>
+#include <unordered_map>
 class Highlighter : public QObject {
     Q_OBJECT
-    YoyoHighlighter hl;
+    QML_ELEMENT
 public:
     explicit Highlighter(QObject* parent = nullptr) : QObject(parent), hl(this) {}
     Q_INVOKABLE void setDocument(QQuickTextDocument* doc) {
@@ -30,4 +17,6 @@ public:
         QObject::connect(internal_doc, &QTextDocument::contentsChange, &hl, &YoyoHighlighter::refreshHighlights);
         std::println("stuff");
     }
+private:
+    YoyoHighlighter hl;
 };
