@@ -5,7 +5,9 @@
 #include "qobject.h"
 #include "root_statement.hpp"
 #include <algorithm>
+#include <print>
 #include <cinttypes>
+#include <format>
 #include <iterator>
 #include <utility>
 #include <vector>
@@ -13,6 +15,27 @@
 struct GetChildrenVisitor {
     std::vector<Yoyo::ASTNode*> operator()(Yoyo::Expression*) {
         return {};
+    }
+    std::vector<Yoyo::ASTNode*> operator()(Yoyo::BlockExpression* expr) {
+        std::vector<Yoyo::ASTNode*> result;
+        std::ranges::transform(expr->statements, std::back_inserter(result), [](auto& in) { return in.get(); });
+        if(expr->expr) result.push_back(expr->expr.get());
+        return result;
+    }
+    std::vector<Yoyo::ASTNode*> operator()(Yoyo::BinaryOperation* expr) {
+        return {
+            expr->lhs.get(),
+            expr->rhs.get()
+        };
+    }
+    std::vector<Yoyo::ASTNode*> operator()(Yoyo::PrefixOperation* expr) {
+        return { expr->operand.get() };
+    }
+    std::vector<Yoyo::ASTNode*> operator()(Yoyo::CallOperation* expr) {
+        std::vector<Yoyo::ASTNode*> result;
+        result.push_back(expr->callee.get());
+        std::ranges::transform(expr->arguments, std::back_inserter(result), [](auto& in) { return in.get(); });
+        return result;
     }
     std::vector<Yoyo::ASTNode*> operator()(Yoyo::ForStatement* stat) {
         return {
@@ -128,6 +151,33 @@ struct GetChildrenVisitor {
         else return nullptr;
     }
 };
+struct GetDataVisitor {
+    std::string operator()(Yoyo::Expression*) {
+        return "unlimplemented";
+    }
+    std::string operator()(Yoyo::BlockExpression*) {
+        return "block";
+    }
+    std::string operator()(Yoyo::Statement*) { return "unlimplemented statement"; }
+    std::string operator()(Yoyo::ReturnStatement* stat) {
+        auto added_string = stat->expression ? "" : " void";
+        return std::string("return") + added_string;
+    }
+    std::string operator()(Yoyo::FunctionDeclaration* stat) {
+        return std::format("function decl: {}", stat->name);
+    }
+    QVariant get_data(Yoyo::ASTNode* node, RootStatement* root_stat) {
+        if (auto as_expr = dynamic_cast<Yoyo::Expression*>(node)) {
+            auto content = std::visit(*this, as_expr->toVariant());
+            return QString::fromStdString(std::format("[expr:{}] {}", as_expr->evaluated_type.full_name(), content));
+        } else if (node == root_stat) {
+            return "root node";
+        } else if (auto as_stat = dynamic_cast<Yoyo::Statement*>(node)) {
+            return QString::fromStdString(std::visit(*this, as_stat->toVariant()));
+        }
+        std::unreachable();
+    }
+};
 void ASTTreeViewModel::setCompiler(CompilerState* state) {
     QObject::connect(state, &CompilerState::statusChanged, this, &ASTTreeViewModel::compilerUpdated);
     this->root_stat = std::make_unique<RootStatement>(&state->syntax_tree);
@@ -155,11 +205,11 @@ int node_row(Yoyo::ASTNode* node, RootStatement* root) {
             return node == ptr.get();
         });
         if (it != root->tree->end()) {
-            parent = root;
+            return std::distance(root->tree->begin(), it);
         } else std::unreachable();
     }
     auto siblings = GetChildrenVisitor{}.get_children(parent, root);
-    auto it = std::ranges::find(siblings, parent);
+    auto it = std::ranges::find(siblings, node);
     if(it != siblings.end())
         return std::distance(siblings.begin(), it);
     std::unreachable();
@@ -167,7 +217,7 @@ int node_row(Yoyo::ASTNode* node, RootStatement* root) {
 QModelIndex ASTTreeViewModel::parent(const QModelIndex& index) const {
     if (!index.isValid()) return {};
     auto child = static_cast<Yoyo::ASTNode*>(index.internalPointer());
-
+    if (child == nullptr) std::unreachable();
     auto parent = child->parent;
 
     if(parent == nullptr) {
@@ -180,14 +230,17 @@ QModelIndex ASTTreeViewModel::parent(const QModelIndex& index) const {
         // 2 - is if its a direct child of root
         if (it != root_stat->tree->end()) {
             return QModelIndex{};
-            // return createIndex(0, index.column(), root_stat.get());
+            // return createIndex(0, 0, root_stat.get());
         }
+        std::println("{} {} {}", (void*)child, index.row(), index.column());
+        std::unreachable();
         return {};
     }
     return createIndex(node_row(parent, root_stat.get()), index.column(), parent);
 }
 
 int ASTTreeViewModel::rowCount(const QModelIndex& parent) const {
+    if (parent.column() > 0) return 0;
     if (parent.isValid())
         return GetChildrenVisitor{}.get_children(static_cast<Yoyo::ASTNode*>(parent.internalPointer()), root_stat.get()).size();
     return root_stat ? root_stat->tree->size() : 0;
@@ -202,10 +255,7 @@ QVariant ASTTreeViewModel::data(const QModelIndex& index, int role) const {
         return {};
 
     auto node = static_cast<Yoyo::ASTNode*>(index.internalPointer());
-    if (node == root_stat.get()) {
-        return "Root";
-    }
-    return "String to start";
+    return GetDataVisitor{}.get_data(node, root_stat.get());
 }
 CompilerState* ASTTreeViewModel::nullCompilerState() const { 
     return nullptr;
