@@ -19,6 +19,7 @@ void CompilerState::compile() {
             return;
         }
         auto source = engine.get_module_parse_output(module_name);
+        syntax_tree.clear();
         std::ranges::move((*source) | std::views::transform([](const std::unique_ptr<Yoyo::Statement>& in) {
             return Yoyo::StatementTreeCloner::copy_stat(in.get());
         }), std::back_inserter(syntax_tree));

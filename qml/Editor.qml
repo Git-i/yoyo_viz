@@ -15,7 +15,7 @@ ScrollView {
         width: root.width
         height: root.height
         font.family: 'JetBrainsMono NF'
-        text: 'main: fn = return 4;'
+        text: 'main: fn = return;'
         color: '#cdd6f4'
 
         Component.onCompleted: {

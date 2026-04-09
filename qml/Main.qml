@@ -18,6 +18,8 @@ Window {
             width: 700
         }
         OutputViewer {
+            width: 700
+            height: 300
             id: output
             document: editor.textDocument
         }
