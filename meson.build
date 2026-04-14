@@ -23,6 +23,8 @@ headers = [
     'include/type_checker_wrappers/constraint_info_object.hpp',
     'include/type_checker_wrappers/type_checker_model.hpp',
     'include/type_checker_wrappers/type_checker_state_model.hpp',
+    'include/type_checker_wrappers/subst_info_object.hpp',
+    'include/type_checker_wrappers/subst_list_model.hpp'
 ]
 sources = [
     'yoyo_viz.cpp',
@@ -31,7 +33,9 @@ sources = [
     'src/ast_tree_view_model.cpp',
     'src/constraint_list_model.cpp',
     'src/type_checker_wrappers/constraint_info_object.cpp',
-    'src/type_checker_wrappers/type_checker_model.cpp'
+    'src/type_checker_wrappers/type_checker_model.cpp',
+    'src/type_checker_wrappers/subst_list_model.cpp',
+    'src/type_checker_wrappers/subst_info_object.cpp'
 ]
 inc = ['include/', 'include/type_checker_wrappers']
 sources += qt6.qml_module(

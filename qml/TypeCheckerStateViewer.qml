@@ -3,7 +3,8 @@ import com.yoyoviz.cpp 1.0
 Item {
     id: root
     required property TypeCheckerStateModel model
-    Row {
+    Grid {
+        columns: 2
         width: parent.width
         Column {
             width: parent.width / 2

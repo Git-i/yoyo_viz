@@ -2,6 +2,7 @@
 #include "compiler_state.hpp"
 #include "constraint_list_model.hpp"
 #include "qobject.h"
+#include "subst_list_model.hpp"
 #include "type_checker_state_model.hpp"
 
 TypeCheckerStateModel* TypeCheckerModel::getState(int index) {
@@ -45,4 +46,8 @@ ConstraintListModel* TypeCheckerStateModel::getActiveConstraints() {
 
 ConstraintListModel* TypeCheckerStateModel::getGeneratedConstraints() {
     return new ConstraintListModel(nullptr, inner->generated_constraints);
+}
+
+SubstListModel* TypeCheckerStateModel::getSubstitutions() {
+    return new SubstListModel(nullptr, inner->subsitutions);
 }
