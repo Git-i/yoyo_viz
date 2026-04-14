@@ -20,14 +20,18 @@ headers = [
     'include/highlighter.hpp',
     'include/compiler_state.hpp',
     'include/ast_tree_view_model.hpp',
-    'include/type_checker_wrappers/constraint_info_object.hpp'
+    'include/type_checker_wrappers/constraint_info_object.hpp',
+    'include/type_checker_wrappers/type_checker_model.hpp',
+    'include/type_checker_wrappers/type_checker_state_model.hpp',
 ]
 sources = [
     'yoyo_viz.cpp',
     'src/highlighter.cpp',
     'src/compiler_state.cpp',
     'src/ast_tree_view_model.cpp',
-    'src/constraint_list_model.cpp'
+    'src/constraint_list_model.cpp',
+    'src/type_checker_wrappers/constraint_info_object.cpp',
+    'src/type_checker_wrappers/type_checker_model.cpp'
 ]
 inc = ['include/', 'include/type_checker_wrappers']
 sources += qt6.qml_module(
@@ -39,7 +43,8 @@ sources += qt6.qml_module(
         'qml/ParserOutput.qml',
         'qml/OutputViewer.qml',
         'qml/ConstraintListViewer.qml',
-        'qml/TypeCheckerViewer.qml'
+        'qml/TypeCheckerViewer.qml',
+        'qml/TypeCheckerStateViewer.qml'
     ],
 )
 sources += qt6.qml_module(

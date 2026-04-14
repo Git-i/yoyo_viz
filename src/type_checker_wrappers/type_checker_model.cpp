@@ -1,5 +1,6 @@
 #include "type_checker_wrappers/type_checker_model.hpp"
 #include "compiler_state.hpp"
+#include "constraint_list_model.hpp"
 #include "qobject.h"
 #include "type_checker_state_model.hpp"
 
@@ -8,10 +9,18 @@ TypeCheckerStateModel* TypeCheckerModel::getState(int index) {
 }
 void TypeCheckerModel::setCompiler(CompilerState* state) {
     compiler = state;
-    QObject::connect(compiler, &CompilerState::statusChanged, this, &TypeCheckerModel::prepareStates);
+    QObject::connect(compiler, &CompilerState::statusChanged, this, &TypeCheckerModel::compilerStatusChanged);
+}
+void TypeCheckerModel::compilerStatusChanged() {
+    if (compiler->status != CompilerState::Ready) {
+        dirty = true;
+        return;
+    }
+    if (dirty) prepareStates();
 }
 
 void TypeCheckerModel::prepareStates() {
+    if(!dirty) return;
     states.clear(); raw_states_buffer.clear();
     if (compiler->status != CompilerState::Ready) return;
 
@@ -22,9 +31,18 @@ void TypeCheckerModel::prepareStates() {
     states.emplace_back(new TypeCheckerStateModel(this, &initial));
     auto* current_state = &initial;
     for(auto& step : this_info.steps) {
-        current_state = &raw_states_buffer.emplace_back(current_state->applied(step));
+        current_state = &raw_states_buffer.emplace_back(current_state->applied(std::move(step)));
     }
     std::ranges::transform(raw_states_buffer, std::back_inserter(states), [this](auto& in) {
         return std::make_unique<TypeCheckerStateModel>(this, &in);
     });
+    dirty = false;
+}
+
+ConstraintListModel* TypeCheckerStateModel::getActiveConstraints() {
+    return new ConstraintListModel(nullptr, inner->active_constraints);
+}
+
+ConstraintListModel* TypeCheckerStateModel::getGeneratedConstraints() {
+    return new ConstraintListModel(nullptr, inner->generated_constraints);
 }

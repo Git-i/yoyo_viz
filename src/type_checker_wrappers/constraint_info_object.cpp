@@ -1,4 +1,7 @@
 #include "type_checker_wrappers/constraint_info_object.hpp"
+#include "qabstractitemmodel.h"
+#include "qnamespace.h"
+#include "qvariant.h"
 #include "type_checker.h"
 using namespace Yoyo;
 struct ConstraintDescriptionVisitor
@@ -102,8 +105,241 @@ struct ConstraintDescriptionVisitor
     }
 };
 
+struct ConstraintDetailsVisitor {
+    using Return = std::vector<std::pair<QString, QString>>;
+
+    QString type_to_qstr(const Type& type) {
+        return QString::fromStdString(type.full_name());
+    }
+    Return operator()(IsIntegerConstraint& con) {
+        return {
+        {"Type", type_to_qstr(con.type)}
+        };
+    }
+    Return operator()(CanStoreIntegerConstraint& con) {
+        QString final;
+        if(auto* as_uint = std::get_if<uint64_t>(&con.value)) {
+            final.setNum(*as_uint);
+        } else final.setNum(std::get<int64_t>(con.value));
+        return {
+            {"Type", type_to_qstr(con.type)},
+            {"Value", std::move(final)}
+        };
+    }
+    Return operator()(IsFloatConstraint& con) {
+        return {
+            {"Type", type_to_qstr(con.type)}
+        };
+    }
+    Return operator()(CanStoreRealConstraint& con) {
+        return {
+            {"Type", type_to_qstr(con.type)},
+            {"Value", QString::number(con.value)}
+        };
+    }
+    Return operator()(ToStringConstraint& con) {
+        return {
+            {"Type", type_to_qstr(con.type)}
+        };
+    }
+    Return operator()(HasUnaryMinusConstraint& con) {
+        return {
+            {"Type", type_to_qstr(con.type)},
+            {"Returns", type_to_qstr(con.ret)}
+        };
+    }
+    Return operator()(HasUnaryNotConstraint& con) {
+        return {
+            {"Type", type_to_qstr(con.type)},
+            {"Returns", type_to_qstr(con.ret)}
+        };
+    }
+    Return operator()(IsReferenceToConstraint& con) {
+        return {
+            {"Type", type_to_qstr(con.type)},
+            {"Reference To", type_to_qstr(con.other)}
+        };
+    }
+    Return operator()(IsNotReferenceConstraint& con) {
+        return {
+            {"Type", type_to_qstr(con.type)}
+        };
+    }
+    Return operator()(BinaryOperableConstraint& con) {
+        return {
+            {"Left Type", type_to_qstr(con.left)},
+            {"Operator", "not implemented"},
+            {"Right Type", type_to_qstr(con.right)},
+            {"Returns", type_to_qstr(con.result)}
+        };
+    }
+    Return operator()(ComparableConstraint& con) {
+        return {
+            {"Type", type_to_qstr(con.type)}
+        };
+    }
+    Return operator()(EqualConstraint& con) {
+        return {
+            {"Type 1", type_to_qstr(con.type1)},
+            {"Type 2", type_to_qstr(con.type2)}
+        };
+    }
+    Return operator()(OwningConstraint& ) { return {};}
+    Return operator()(IsInvocableConstraint& con) {
+        return {
+            {"Type", type_to_qstr(con.type)}
+        };
+    }
+    Return operator()(ValidAsFunctionArgConstraint& con) {
+        return {
+            {"Type", type_to_qstr(con.type)},
+            {"Function", type_to_qstr(con.function)},
+            {"Arg No.", QString::number(con.arg_no)}
+        };
+    }
+    Return operator()(IsReturnOfConstraint& con) {
+        return {
+            {"Type", type_to_qstr(con.type)},
+            {"Function", type_to_qstr(con.function)}
+        };
+    }
+    Return operator()(ImplInterfaceConstraint& con) {
+        return {
+            {"Type", type_to_qstr(con.type)},
+            {"Interface", type_to_qstr(con.interface)}
+        };
+    }
+    Return operator()(ExtractsToConstraint& con) {
+        return {
+            {"Type", type_to_qstr(con.type)},
+            {"Extracts To", type_to_qstr(con.dst)}
+        };
+    }
+    Return operator()(RefExtractsToConstraint& con) {
+        return {
+            {"Type", type_to_qstr(con.type)},
+            {"Extracts To", type_to_qstr(con.dst)}
+        };
+    }
+    Return operator()(NonOwningConstraint& con) {
+        return {};
+    }
+    Return operator()(AsConstraint& con) {
+        return {
+            {"Input", type_to_qstr(con.input_type)},
+            {"Destination", type_to_qstr(con.dest)},
+            {"Result", type_to_qstr(con.result)}
+        };
+    }
+    Return operator()(ConvertibleToConstraint& con) {
+        return {
+            {"From", type_to_qstr(con.from)},
+            {"To", type_to_qstr(con.to)}
+        };
+    }
+    Return operator()(BinaryDotCompatibleConstraint& con) {
+        // TODO: do the RHS
+        return {
+            {"Left", type_to_qstr(con.tp)},
+            {"Result", type_to_qstr(con.result)}
+        };
+    }
+    Return operator()(ElseRefExtractsToConstraint& con) {
+        return {
+            {"Type", type_to_qstr(con.type)},
+            {"Destination", type_to_qstr(con.dst)},
+            {"Is Mutable?", con.is_mut ? QString("true") : QString("false")}
+        };
+    }
+    Return operator()(ElseExtractsToConstraint& con) {
+        return {
+            {"Type", type_to_qstr(con.type)},
+            {"Destination", type_to_qstr(con.dst)}
+        };
+    }
+    Return operator()(IfStatementConstraint& con) {
+        return {
+            {"Then Type", type_to_qstr(con.then_type)},
+            {"Else Type", type_to_qstr(con.else_type)},
+            {"Result", type_to_qstr(con.result)},
+            {"Then Transfers Control", con.then_transfers_control ? QString("true") : QString("false")}
+        };
+    }
+    Return operator()(EqualOrIsVoidConstraint& con) {
+        return {
+            {"Type 1 or void", type_to_qstr(con.type1)},
+            {"Type 2", type_to_qstr(con.type2)}
+        };
+    }
+    Return operator()(IndexOperableConstraint& con) {
+        return {
+            {"Expression", type_to_qstr(con.left)},
+            {"Index", type_to_qstr(con.right)},
+            {"Result", type_to_qstr(con.result)},
+            {"Is Mutable", con.is_mutable ? QString("true") : QString("false")}
+        };
+    }
+    Return operator()(HasFieldConstraint& con) {
+        return {
+            {"Subject", type_to_qstr(con.subject)},
+            {"Field name", QString::fromStdString(con.field_name)},
+            {"Result", type_to_qstr(con.result)}
+        };
+    }
+    Return operator()(AllFieldsConstraint& con) {
+        return {
+            {"Subject", type_to_qstr(con.subject)}
+        };
+    }
+    Return operator()(BorrowResultConstraint& con) {
+        return {
+            {"Subject", type_to_qstr(con.subject)},
+            {"Result", type_to_qstr(con.result)}
+        };
+    }
+    Return operator()(BorrowResultMutConstraint& con) {
+        return {
+            {"Subject", type_to_qstr(con.subject)},
+            {"Result", type_to_qstr(con.result)}
+        };
+    }
+    Return operator()(IfEqualThenConstrain& con) {
+        return {
+        {"Type 1", type_to_qstr(con.type1)},
+        {"Type 2", type_to_qstr(con.type2)}
+        };
+    }
+};
+
 QString ConstraintInfoWrapper::description() const {
     auto& self = info->at(index);
     return std::visit(ConstraintDescriptionVisitor{}, *self.constraint);
+}
+
+struct DetailModel : public QAbstractTableModel {
+    DetailModel(QObject* parent, TypeCheckerConstraint* con)
+        : QAbstractTableModel(parent), inner(con) {
+        table = std::visit(ConstraintDetailsVisitor{}, *con);
+    }
+    TypeCheckerConstraint* inner;
+    std::vector<std::pair<QString, QString>> table;
+public:
+    int rowCount(const QModelIndex& ) const override {
+        return table.size();
+    }
+    int columnCount(const QModelIndex& ) const override {
+        return 2;
+    }
+    QVariant data(const QModelIndex& index, int role) const override {
+        if (role != Qt::DisplayRole) return {};
+        auto& row_entry = table[index.row()];
+        if (index.column() == 0) return row_entry.first;
+        else if (index.column() == 1) return row_entry.second;
+        else return {};
+    }
+};
+
+QAbstractItemModel* ConstraintInfoWrapper::details() const {
+    return new DetailModel(nullptr, info->at(index).constraint.get());
 }
 

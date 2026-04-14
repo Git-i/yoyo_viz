@@ -1,5 +1,6 @@
 #pragma once
 
+#include "constraint_list_model.hpp"
 #include "qobject.h"
 #include "qqmlintegration.h"
 #include "qtmetamacros.h"
@@ -10,6 +11,8 @@ struct TypeCheckerStateModel : public QObject {
 public:
     TypeCheckerStateModel(QObject* parent, Yoyo::Info::RecordedTypeCheckerState* raw) :
         QObject(parent) , inner(raw) {}
+    Q_INVOKABLE ConstraintListModel* getActiveConstraints();
+    Q_INVOKABLE ConstraintListModel* getGeneratedConstraints();
 private:
     Yoyo::Info::RecordedTypeCheckerState* inner;
 };

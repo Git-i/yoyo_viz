@@ -13,8 +13,10 @@ struct TypeCheckerModel : public QObject {
 public:
     Q_INVOKABLE void setCompiler(CompilerState* state);
     Q_INVOKABLE TypeCheckerStateModel* getState(int index);
+    Q_INVOKABLE void prepareStates();
 private:
-    void prepareStates();
+    bool dirty = false;
+    void compilerStatusChanged();
     QString functionName;
     std::vector<std::unique_ptr<TypeCheckerStateModel>> states;
     std::vector<Yoyo::Info::RecordedTypeCheckerState> raw_states_buffer;

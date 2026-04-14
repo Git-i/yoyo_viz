@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls.Material
+import QtQuick.Controls
 import com.yoyoviz.cpp 1.0
 Item {
     id: root
