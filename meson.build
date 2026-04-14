@@ -16,17 +16,20 @@ dependencies = [
     qt_dep, yoyoc, dependency('tree-sitter'), ts_yoyo_dep
 ]
 headers = [
+    'include/constraint_list_model.hpp',
     'include/highlighter.hpp',
     'include/compiler_state.hpp',
-    'include/ast_tree_view_model.hpp'
+    'include/ast_tree_view_model.hpp',
+    'include/type_checker_wrappers/constraint_info_object.hpp'
 ]
 sources = [
     'yoyo_viz.cpp',
     'src/highlighter.cpp',
     'src/compiler_state.cpp',
-    'src/ast_tree_view_model.cpp'
+    'src/ast_tree_view_model.cpp',
+    'src/constraint_list_model.cpp'
 ]
-inc = ['include/']
+inc = ['include/', 'include/type_checker_wrappers']
 sources += qt6.qml_module(
     'YoyoViz',
     version: '0.1',
@@ -34,7 +37,9 @@ sources += qt6.qml_module(
         'qml/Main.qml',
         'qml/Editor.qml',
         'qml/ParserOutput.qml',
-        'qml/OutputViewer.qml'
+        'qml/OutputViewer.qml',
+        'qml/ConstraintListViewer.qml',
+        'qml/TypeCheckerViewer.qml'
     ],
 )
 sources += qt6.qml_module(

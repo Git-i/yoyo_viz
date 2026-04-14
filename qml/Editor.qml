@@ -1,25 +1,60 @@
+pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Controls
+import QtQuick.Layouts
 import com.yoyoviz.cpp 1.0
-ScrollView {
-    id: root
+RowLayout {
     property alias textDocument:  edit.textDocument
-    Highlighter {
-        id: highlighter
+    Column { 
+        Layout.fillHeight: true
+        Layout.fillWidth: false
+        width: 30
+        Repeater {
+            id: lineNumbers
+            model: edit.text.split(/\n/g)
+            width: 12
+            delegate: Label {
+                required property int index
+                color: '#cdd6f4'
+                font: edit.font
+                width: parent.width
+                height: edit.contentHeight / lineNumbers.count
+                verticalAlignment: Text.AlignVCenter
+                horizontalAlignment: Text.AlignRight
+                text: index + 1
+                background: Rectangle {
+                    border.color: "black"
+                    color: "#181825"
+                }
+            }
+        }
     }
-    background: Rectangle {
-        color: "#1e1e2e"
-    }
-    TextEdit {
-        id: edit
-        width: root.width
-        height: root.height
-        font.family: 'JetBrainsMono NF'
-        text: 'main: fn = return;'
-        color: '#cdd6f4'
-
-        Component.onCompleted: {
-            highlighter.setDocument(textDocument)
+    ScrollView {
+        Layout.fillHeight: true
+        id: editor
+        Highlighter {
+            id: highlighter
+        }
+        background: Rectangle {
+            color: "#1e1e2e"
+        }
+        FontMetrics {
+            id: fontMetrics
+            font: edit.font
+        }
+        TextEdit {
+            id: edit
+            width: editor.width
+            height: editor.height
+            font.family: 'JetBrainsMono NF'
+            font.pointSize: 12
+            text: 'main: fn = return;'
+            color: '#cdd6f4'
+            selectionColor: '#22222244'
+            tabStopDistance: fontMetrics.averageCharacterWidth * 4
+            Component.onCompleted: {
+                highlighter.setDocument(textDocument)
+            }
         }
     }
 }

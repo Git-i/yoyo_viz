@@ -1,4 +1,5 @@
 #include "include/compiler_state.hpp"
+#include <csignal>
 #include "tree_cloner.h"
 #include <memory>
 #include <ranges>

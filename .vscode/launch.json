@@ -1,0 +1,12 @@
+{
+    "configurations": [
+        {
+            "name": "Run",
+            "type": "codelldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/builddir/yoyo_viz",
+            "args": [],
+            "preLaunchTask": "just build"
+        }
+    ]
+}

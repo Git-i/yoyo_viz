@@ -1,5 +1,5 @@
 import QtQuick
-import QtQuick.Controls
+import QtQuick.Controls.Material
 import com.yoyoviz.cpp 1.0
 Item {
     id: root
@@ -15,6 +15,7 @@ Item {
         anchors.fill: parent
         id: treeView
         model: treeModel
+        selectionModel: ItemSelectionModel{}
         delegate: TreeViewDelegate{
 
         }

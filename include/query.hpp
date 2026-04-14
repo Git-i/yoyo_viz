@@ -33,5 +33,6 @@ constexpr std::string_view hl_query = R"(
 
 (string)@string
 (type (identifier)@type)
+(type (primitivetype)@type)
 (integer_literal)@number
 )";

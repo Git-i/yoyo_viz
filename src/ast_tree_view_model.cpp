@@ -158,10 +158,16 @@ struct GetDataVisitor {
     std::string operator()(Yoyo::BlockExpression*) {
         return "block";
     }
+    std::string operator()(Yoyo::IntegerLiteral* lit) {
+        return std::format("int: {}", lit->text);
+    }
     std::string operator()(Yoyo::Statement*) { return "unlimplemented statement"; }
     std::string operator()(Yoyo::ReturnStatement* stat) {
         auto added_string = stat->expression ? "" : " void";
         return std::string("return") + added_string;
+    }
+    std::string operator()(Yoyo::ExpressionStatement* stat) {
+        return "expression statement";
     }
     std::string operator()(Yoyo::FunctionDeclaration* stat) {
         return std::format("function decl: {}", stat->name);
