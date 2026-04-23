@@ -19,7 +19,9 @@ void TypeCheckerModel::compilerStatusChanged() {
     }
     if (dirty) prepareStates();
 }
-
+int TypeCheckerModel::numStates() {
+    return static_cast<int>(states.size());
+}
 void TypeCheckerModel::prepareStates() {
     if(!dirty) return;
     states.clear(); raw_states_buffer.clear();

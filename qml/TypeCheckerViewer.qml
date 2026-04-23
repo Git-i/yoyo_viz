@@ -50,23 +50,26 @@ Item {
     }
     Component {
         id: readyComponent
-        RowLayout {
-            width: 800
-            height: 800
-            TypeCheckerStateViewer {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                model: {
-                    checker.prepareStates()
-                    return checker.getState(0)
-                }
+        ListView {
+            width: 800; height: 800
+            orientation: ListView.Horizontal
+            snapMode: ListView.SnapOneItem
+            model: {
+                checker.prepareStates()
+                return checker.numStates()
             }
-            TypeCheckerStateViewer {
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                model: {
-                    checker.prepareStates()
-                    return checker.getState(1)
+            delegate: RowLayout {
+                width: 800; height: 800
+                TypeCheckerStateViewer {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    model: checker.getState(index)
+                }
+                TypeCheckerStateViewer {
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    visible: index < (checker.numStates() - 1)
+                    model: visible ? checker.getState(index + 1) : null
                 }
             }
         }

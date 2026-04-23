@@ -1,4 +1,5 @@
 #pragma once
+#include "statement.h"
 #include "info_aggregator.h"
 #include <QObject>
 #include "qabstractitemmodel.h"

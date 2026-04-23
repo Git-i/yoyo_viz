@@ -3,8 +3,8 @@
 #include "qqmlintegration.h"
 #include "qquicktextdocument.h"
 #include "qtmetamacros.h"
-#include "yvm/yvm_engine.h"
 #include "statement.h"
+#include "yvm/yvm_engine.h"
 #include "type_checker.h"
 #include <thread>
 #include <QObject>

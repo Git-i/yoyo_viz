@@ -12,14 +12,9 @@ Window {
     ColumnLayout {
         anchors.fill: parent
         id: main_col
-        Editor {
-            id: editor
-            height: 200
-            width: 700
-        }
         OutputViewer {
             width: 700
-            height: 300
+            height: 700
             id: output
             document: editor.textDocument
         }
@@ -28,6 +23,11 @@ Window {
             onClicked: {
                 output.compile()
             }
+        }
+        Editor {
+            id: editor
+            height: 100
+            width: 400
         }
     }
 }

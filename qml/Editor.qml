@@ -48,7 +48,12 @@ RowLayout {
             height: editor.height
             font.family: 'JetBrainsMono NF'
             font.pointSize: 12
-            text: 'main: fn -> i32 = return 100;'
+            text: `main: fn -> i32 = {
+	val: i32 = 100;
+	val2: &i32 = &val;
+	if (*val2 == 100) { return 200; }
+	return 400;
+}`
             color: '#cdd6f4'
             selectionColor: '#22222244'
             tabStopDistance: fontMetrics.averageCharacterWidth * 4

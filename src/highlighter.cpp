@@ -40,6 +40,8 @@ static void populate_edit_points(TSInputEdit& edit, const std::string& text) {
 }
 void YoyoHighlighter::refreshHighlights(int position, int removed, int added) {
     std::println("pos: {}, removed: {}, added: {}", position, removed, added);
+    auto content = document()->toPlainText().toStdString();
+    if (added > content.size()) added = content.size();
     TSInputEdit edit {
         .start_byte = static_cast<uint32_t>(position),
         .old_end_byte = static_cast<uint32_t>(position + removed),
@@ -48,7 +50,6 @@ void YoyoHighlighter::refreshHighlights(int position, int removed, int added) {
         .old_end_point = TSPoint{},
         .new_end_point = TSPoint{}
     };
-    auto content = document()->toPlainText().toStdString();
     auto old_content = content;
     old_content.erase(old_content.begin() + position, old_content.begin() + position + added);
     old_content.insert(static_cast<size_t>(position), static_cast<size_t>(removed), '$');

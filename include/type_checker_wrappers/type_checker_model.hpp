@@ -11,9 +11,11 @@ struct TypeCheckerModel : public QObject {
     QML_ELEMENT
     Q_PROPERTY(QString functionName MEMBER functionName)
 public:
+    TypeCheckerModel(QObject* parent = nullptr): QObject(parent) {}
     Q_INVOKABLE void setCompiler(CompilerState* state);
     Q_INVOKABLE TypeCheckerStateModel* getState(int index);
     Q_INVOKABLE void prepareStates();
+    Q_INVOKABLE int numStates();
 private:
     bool dirty = false;
     void compilerStatusChanged();

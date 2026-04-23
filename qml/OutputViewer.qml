@@ -39,6 +39,9 @@ Item {
             TabButton {
                 text: "Type Checker Output"
             }
+            TabButton {
+                text: "Borrow Checker Ouput"
+            }
         }
         StackLayout {
             width: parent.width
@@ -48,6 +51,9 @@ Item {
                 state: state
             }
             TypeCheckerViewer {
+                compiler: state
+            }
+            BorrowCheckerViewer {
                 compiler: state
             }
             currentIndex: tab.currentIndex
