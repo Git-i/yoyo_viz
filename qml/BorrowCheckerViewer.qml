@@ -16,6 +16,7 @@ Item {
         delegate: Shape {
             id: edge
             required property var model
+            preferredRendererType: Shape.CurveRenderer
             Instantiator {
                 model: (edge.model.points.length - 1) / 3
                 onObjectAdded: (index, object) => path.pathElements.push(object)
@@ -56,8 +57,10 @@ Item {
             x: model.posx - (width / 2)
             y: model.posy - (height / 2)
 
-            width: model.width
-            height: model.height
+            width: model.width + 5
+            height: model.height + 5
+
+            radius: 5
 
             color: "#440000"
 
@@ -68,6 +71,7 @@ Item {
             }
 
             Column {
+                anchors.centerIn: parent
                 Repeater {
                     model: parentRect.model.instructions
                     delegate: Item {

@@ -11,12 +11,16 @@ constexpr std::string_view hl_query = R"(
     "interface"
     "enum"
     "union"
+    "operator"
 ] @keyword.type
 [
     "return"
     "break"
     "continue"
 ]@keyword.return
+[
+    "mut"
+]@keyword.modifier
 (line_comment) @comment
 (scope_expr (name_expr)@type)
 
@@ -35,4 +39,16 @@ constexpr std::string_view hl_query = R"(
 (type (identifier)@type)
 (type (primitivetype)@type)
 (integer_literal)@number
+(float_literal)@number
+
+(obj_literal (name_expr)@type)
+(type (generic_name_expr (identifier)@type))
+(generic_clause (identifier)@type)
+
+"this"@variable.builtin
+
+(domain_annot)@domain
+(domain_list_item)@domain
+
+(call_expr .(expression (binary_expr (expression) (expression (name_expr))@function)))
 )";

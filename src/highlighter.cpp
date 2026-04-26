@@ -150,16 +150,21 @@ void YoyoHighlighter::initCatppuccin() {
     colors["blue"] = fmt;
     fmt.setForeground(QColor::fromString("#a6e3a1"));
     colors["green"] = fmt;
+    fmt.setForeground(QColor::fromString("#f38ba8"));
+    colors["red"] = fmt;
+    hl_theme["keyword.modifier"] = colors["mauve"];
     hl_theme["keyword.function"] = colors["mauve"];
     hl_theme["keyword.return"] = colors["mauve"];
     hl_theme["keyword.repeat"] = colors["mauve"];
-    hl_theme["keyword.type"] = colors["yellow"];
+    hl_theme["keyword.type"] = colors["mauve"];
     hl_theme["comment"] = colors["overlay2"];
     hl_theme["type"] = colors["yellow"];
     hl_theme["variable.member"] = colors["flamingo"];
     hl_theme["function"] = colors["blue"];
     hl_theme["string"] = colors["green"];
     hl_theme["number"] = colors["peach"];
+    hl_theme["variable.builtin"] = colors["red"];
+    hl_theme["domain"] = colors["green"];
 }
 void YoyoHighlighter::highlightBlock(const QString& text) {
     auto blk = currentBlock();
