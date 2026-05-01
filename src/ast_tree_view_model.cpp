@@ -5,6 +5,7 @@
 #include "qobject.h"
 #include "root_statement.hpp"
 #include <algorithm>
+#include <memory>
 #include <print>
 #include <cinttypes>
 #include <format>
@@ -186,10 +187,15 @@ struct GetDataVisitor {
 };
 void ASTTreeViewModel::setCompiler(CompilerState* state) {
     QObject::connect(state, &CompilerState::statusChanged, this, &ASTTreeViewModel::compilerUpdated);
+    stt = state;
     this->root_stat = std::make_unique<RootStatement>(&state->syntax_tree);
     compilerUpdated();
 }
 void ASTTreeViewModel::compilerUpdated() {
+    if(stt->status != CompilerState::Ready)
+        this->root_stat->tree = &empty_statement_set;
+    else
+        this->root_stat->tree = &stt->syntax_tree;
     beginResetModel();
     endResetModel();
 }

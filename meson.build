@@ -56,7 +56,9 @@ sources += qt6.qml_module(
         'qml/TypeCheckerViewer.qml',
         'qml/TypeCheckerStateViewer.qml',
         'qml/SubstitutionListViewer.qml',
-        'qml/BorrowCheckerViewer.qml'
+        'qml/BorrowCheckerViewer.qml',
+        'qml/BorrowCheckerIRViewer.qml',
+        'qml/PointsToGraphViewer.qml'
     ],
 )
 sources += qt6.qml_module(

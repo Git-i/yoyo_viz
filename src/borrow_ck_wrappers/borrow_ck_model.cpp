@@ -5,6 +5,7 @@
 #include "qabstractitemmodel.h"
 #include "qnamespace.h"
 #include "qobject.h"
+#include "qpoint.h"
 #include "qstringview.h"
 #include "qvariant.h"
 #include "types.h"
@@ -61,6 +62,12 @@ struct BCEdgesModel : public QAbstractListModel {
         if (role == Points) {
             QList<QVariant> ret_val;
             auto spline = ED_spl(edges[index.row()]);
+            if (spline == nullptr) {
+                ret_val.emplace_back(QPointF(0.f, 0.f));
+                ret_val.emplace_back(QPointF(0.f, 0.f));
+                ret_val.emplace_back(QPointF(0.f, 0.f));
+                return ret_val;
+            }
             for (auto i : std::views::iota(0uz, spline->size)) {
                 auto& bez = spline->list[i];
                 for(auto bez_point_idx : std::views::iota(0uz, bez.size)) {
@@ -75,6 +82,51 @@ struct BCEdgesModel : public QAbstractListModel {
     void refresh() {
         beginResetModel();
         endResetModel();
+    }
+};
+struct BCNodesModel : public QAbstractListModel {
+    static constexpr int PosX = Qt::UserRole + 1;
+    static constexpr int PosY = Qt::UserRole + 2;
+    static constexpr int Width = Qt::UserRole + 3;
+    static constexpr int Height = Qt::UserRole + 4;
+
+    Agraph_t* graph;
+    std::vector<Agnode_t*> nodes;
+
+    BCNodesModel(QObject* parent,  Agraph_t* graph): QAbstractListModel(parent), graph(graph) {
+        for (auto n = agfstnode(graph); n; n = agnxtnode(graph, n)) {
+            nodes.push_back(n);
+        }
+    }
+    int rowCount(const QModelIndex& parent = {}) const override {
+        return nodes.size();
+    }
+    QVariant data(const QModelIndex& index, int role) const override {
+        if (role == Qt::DisplayRole) {
+            return QString(agnameof(nodes[index.row()]));
+        }
+        if (role == PosX) {
+            return ND_coord(nodes[index.row()]).x;
+        }
+        if (role == PosY) {
+            return graph_h(graph) - ND_coord(nodes[index.row()]).y;
+        }
+        if (role == Width) {
+            return ND_width(nodes[index.row()]) * 72.0;
+        }
+        if (role == Height) {
+            return ND_height(nodes[index.row()]) * 72.0;
+        }
+        return {};
+    }
+    QHash<int, QByteArray> roleNames() const override {
+        return {
+            { PosX, "posx" },
+            { PosY, "posy" },
+            { Width, "width" },
+            { Height, "height" },
+            { Qt::DisplayRole, "display" } 
+        };
     }
 };
 struct BCFunctionModel : public QAbstractListModel {
@@ -154,8 +206,30 @@ void BorrowCheckerModel::setNodeSize(QString graph, int index, double w, double 
         if (++initialIRLaidOut == agnnodes(initialIR)) {
             initialIRLaidOut = 0;
             gvLayout(gvc, initialIR, "dot");
-            reinterpret_cast<BCFunctionModel*>(initialIRModel)->refresh();
-            reinterpret_cast<BCEdgesModel*>(initialIREdgeModel)->refresh();
+            reinterpret_cast<BCFunctionModel*>(initialIRModel.get())->refresh();
+            reinterpret_cast<BCEdgesModel*>(initialIREdgeModel.get())->refresh();
+        }
+    }
+    if (graph == "domainIR") {
+        auto node = agnode(domainIR, state->domain_vars_IR->blocks[index]->debug_name.data(), false);
+        agsafeset(node, "width", std::to_string(w).data(), "");
+        agsafeset(node, "height", std::to_string(h).data(), "");
+        if (++domainIRLaidOut == agnnodes(domainIR)) {
+            domainIRLaidOut = 0;
+            gvLayout(gvc, domainIR, "dot");
+            reinterpret_cast<BCFunctionModel*>(domainIRModel.get())->refresh();
+            reinterpret_cast<BCEdgesModel*>(domainIREdgeModel.get())->refresh();
+        }
+    }
+    if (graph == "ssaIR") {
+        auto node = agnode(ssaIR, state->ssa_IR->blocks[index]->debug_name.data(), false);
+        agsafeset(node, "width", std::to_string(w).data(), "");
+        agsafeset(node, "height", std::to_string(h).data(), "");
+        if (++ssaIRLaidOut == agnnodes(ssaIR)) {
+            ssaIRLaidOut = 0;
+            gvLayout(gvc, ssaIR, "dot");
+            reinterpret_cast<BCFunctionModel*>(ssaIRModel.get())->refresh();
+            reinterpret_cast<BCEdgesModel*>(ssaIREdgeModel.get())->refresh();
         }
     }
 }
@@ -167,31 +241,150 @@ QAbstractItemModel* BorrowCheckerModel::getInitialIR() const {
     if (!state) {
         return new EmptyListModel();
     }
-    return initialIRModel;
+    return initialIRModel.get();
 }
 QAbstractItemModel* BorrowCheckerModel::getInitialIREdges() const {
     if (!state) {
         return new EmptyListModel();
     }
-    return initialIREdgeModel;
+    return initialIREdgeModel.get();
+}
+QAbstractItemModel* BorrowCheckerModel::getDomainIR() const {
+    if (!state) {
+        return new EmptyListModel();
+    }
+    return domainIRModel.get();
+}
+QAbstractItemModel* BorrowCheckerModel::getDomainIREdges() const {
+    if (!state) {
+        return new EmptyListModel();
+    }
+    return domainIREdgeModel.get();
+}
+QAbstractItemModel* BorrowCheckerModel::getSsaIR() const {
+    if (!state) {
+        return new EmptyListModel();
+    }
+    return ssaIRModel.get();
+}
+QAbstractItemModel* BorrowCheckerModel::getSsaIREdges() const {
+    if (!state) {
+        return new EmptyListModel();
+    }
+    return ssaIREdgeModel.get();
+}
+QAbstractItemModel* BorrowCheckerModel::getPtgraphEdges() const {
+    if (!state) {
+        return new EmptyListModel();
+    }
+    return ptgraphEdgeModel.get();
+}
+QAbstractItemModel* BorrowCheckerModel::getPtgraph() const {
+    if (!state) {
+        return new EmptyListModel();
+    }
+    return ptgraphModel.get();
+}
+QAbstractItemModel* BorrowCheckerModel::getFlowGraph() const {
+    if (!state) {
+        return new EmptyListModel();
+    }
+    return flowGraphModel.get();
+}
+QAbstractItemModel* BorrowCheckerModel::getFlowGraphEdges() const {
+    if (!state) {
+        return new EmptyListModel();
+    }
+    return flowGraphEdgeModel.get();
 }
 void BorrowCheckerModel::compilerStatusChanged() {
     state = nullptr;
-    if (initialIR) agclose(initialIR);
+    if (initialIR) {
+        agclose(initialIR);
+        initialIR = nullptr;
+    }
+    if (domainIR) { 
+        agclose(domainIR);
+        domainIR = nullptr;
+    }
+    if (ssaIR) { 
+        agclose(ssaIR);
+        ssaIR = nullptr;
+    }
     initialIRLaidOut = 0;
+    domainIRLaidOut = 0;
+    ssaIRLaidOut = 0;
+    std::vector<QAbstractItemModel*> delete_this;
     if (compiler->status == CompilerState::Ready) {
         auto& info = compiler->output.compilation_info.function_info;
         auto fn_name = functionName.toStdString();
         if(info.contains(fn_name)) {
             state = &info.at(fn_name).bc_state;
             initGraphFor(initialIR, state->initial_IR.get());
-            initialIRModel = new BCFunctionModel(nullptr, initialIR, state->initial_IR.get());
-            initialIREdgeModel = new BCEdgesModel(nullptr, initialIR);
+            initGraphFor(domainIR, state->domain_vars_IR.get());
+            initGraphFor(ssaIR, state->ssa_IR.get());
+            initPtGraph(); initFlowGraph();
+            delete_this.push_back(initialIRModel.release());
+            delete_this.push_back(initialIREdgeModel.release());
+            initialIRModel.reset(new BCFunctionModel(this, initialIR, state->initial_IR.get()));
+            initialIREdgeModel.reset(new BCEdgesModel(this, initialIR));
+            
+            delete_this.push_back(domainIRModel.release());
+            delete_this.push_back(domainIREdgeModel.release());
+            domainIRModel.reset(new BCFunctionModel(this, domainIR, state->domain_vars_IR.get()));
+            domainIREdgeModel.reset(new BCEdgesModel(this, domainIR));
+
+            delete_this.push_back(ssaIRModel.release());
+            delete_this.push_back(ssaIREdgeModel.release());
+            ssaIRModel.reset(new BCFunctionModel(this, ssaIR, state->ssa_IR.get()));
+            ssaIREdgeModel.reset(new BCEdgesModel(this, ssaIR));
+
+            delete_this.push_back(ptgraphModel.release());
+            delete_this.push_back(ptgraphEdgeModel.release());
+            ptgraphModel.reset(new BCNodesModel(this, ptgraph));
+            ptgraphEdgeModel.reset(new BCEdgesModel(this, ptgraph));
+
+            delete_this.push_back(flowGraphModel.release());
+            delete_this.push_back(flowGraphEdgeModel.release());
+            flowGraphModel.reset(new BCNodesModel(this, flowGraph));
+            flowGraphEdgeModel.reset(new BCEdgesModel(this, flowGraph));
         }
     }
     emit dataChanged();
+    for (auto ptr : delete_this) if(ptr) delete ptr;
 }
 
+void BorrowCheckerModel::initFlowGraph() {
+    flowGraph = agopen("G", Agdirected, nullptr);
+    agsafeset(flowGraph, "rankdir", "LR", "");
+    for (auto& [_, pointees] : state->final_ptg.domain_to_node) {
+        for (auto& pointee : pointees) agnode(flowGraph, const_cast<char*>(pointee.data()), true);
+    }
+    for (auto& [ptr, pointees] : state->final_ptg.domain_to_node) {
+        Agnode_t* node = nullptr;
+        if (!pointees.empty()) node = agnode(flowGraph, const_cast<char*>(ptr.data()), true);
+        for (auto& pointee : pointees) {
+            agedge(flowGraph, node, agnode(flowGraph, const_cast<char*>(pointee.data()), false), "e1", true);
+        }
+    }
+    gvLayout(gvc, flowGraph, "dot");
+}
+
+void BorrowCheckerModel::initPtGraph() {
+    ptgraph = agopen("G", Agdirected, nullptr);
+    agsafeset(ptgraph, "rankdir", "LR", "");
+    for (auto& [_, pointees] : state->aux_ptg.pointee_pairs) {
+        for (auto& pointee : pointees) agnode(ptgraph, const_cast<char*>(pointee.data()), true);
+    }
+    for (auto& [ptr, pointees] : state->aux_ptg.pointee_pairs) {
+        Agnode_t* node = nullptr;
+        if (!pointees.empty()) node = agnode(ptgraph, const_cast<char*>(ptr.data()), true);
+        for (auto& pointee : pointees) {
+            agedge(ptgraph, node, agnode(ptgraph, const_cast<char*>(pointee.data()), false), "e1", true);
+        }
+    }
+    gvLayout(gvc, ptgraph, "dot");
+}
 void BorrowCheckerModel::initGraphFor(Agraph_t*& graph, Yoyo::BorrowChecker::BorrowCheckerFunction* func ) {
     graph = agopen("G", Agdirected, nullptr);
     for(auto& in : func->blocks) { 
