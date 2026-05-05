@@ -3,6 +3,7 @@
 #include "tree_sitter/api.h"
 #include "tree_sitter/tree-sitter-yoyo.h"
 #include <exception>
+#include <flat_map>
 #include <limits>
 #include <print>
 #include <ranges>
@@ -133,10 +134,10 @@ void YoyoHighlighter::runQueries(const TSNode& node) {
     }
 
 }
-void YoyoHighlighter::initCatppuccin() {
+std::flat_map<std::string, QTextCharFormat> getCatppuccinMocha() {
     QTextCharFormat fmt;
     fmt.setForeground(QColor::fromString("#CBA6F7"));
-    std::unordered_map<std::string, QTextCharFormat> colors = {};
+    std::flat_map<std::string, QTextCharFormat> colors = {};
     colors["mauve"] = fmt;
     fmt.setForeground(QColor::fromString("#fab387"));
     colors["peach"] = fmt;
@@ -152,6 +153,70 @@ void YoyoHighlighter::initCatppuccin() {
     colors["green"] = fmt;
     fmt.setForeground(QColor::fromString("#f38ba8"));
     colors["red"] = fmt;
+    return colors;
+}
+std::flat_map<std::string, QTextCharFormat> getCatppuccinLatte() {
+    QTextCharFormat fmt;
+    std::flat_map<std::string, QTextCharFormat> colors = {};
+    fmt.setForeground(QColor::fromString("#8839ef"));
+    colors["mauve"] = fmt;
+    fmt.setForeground(QColor::fromString("#dc8a78"));
+    colors["rosewater"] = fmt;
+    fmt.setForeground(QColor::fromString("#dd7878"));
+    colors["flamingo"] = fmt;
+    fmt.setForeground(QColor::fromString("#ea76cb"));
+    colors["pink"] = fmt;
+    fmt.setForeground(QColor::fromString("#8839ef"));
+    colors["mauve"] = fmt;
+    fmt.setForeground(QColor::fromString("#d20f39"));
+    colors["red"] = fmt;
+    fmt.setForeground(QColor::fromString("#e64553"));
+    colors["maroon"] = fmt;
+    fmt.setForeground(QColor::fromString("#fe640b"));
+    colors["peach"] = fmt;
+    fmt.setForeground(QColor::fromString("#df8e1d"));
+    colors["yellow"] = fmt;
+    fmt.setForeground(QColor::fromString("#40a02b"));
+    colors["green"] = fmt;
+    fmt.setForeground(QColor::fromString("#179299"));
+    colors["teal"] = fmt;
+    fmt.setForeground(QColor::fromString("#04a5e5"));
+    colors["sky"] = fmt;
+    fmt.setForeground(QColor::fromString("#209fb5"));
+    colors["sapphire"] = fmt;
+    fmt.setForeground(QColor::fromString("#1e66f5"));
+    colors["blue"] = fmt;
+    fmt.setForeground(QColor::fromString("#7287fd"));
+    colors["lavender"] = fmt;
+    fmt.setForeground(QColor::fromString("#4c4f69"));
+    colors["text"] = fmt;
+    fmt.setForeground(QColor::fromString("#5c5f77"));
+    colors["subtext1"] = fmt;
+    fmt.setForeground(QColor::fromString("#6c6f85"));
+    colors["subtext0"] = fmt;
+    fmt.setForeground(QColor::fromString("#7c7f93"));
+    colors["overlay2"] = fmt;
+    fmt.setForeground(QColor::fromString("#8c8fa1"));
+    colors["overlay1"] = fmt;
+    fmt.setForeground(QColor::fromString("#9ca0b0"));
+    colors["overlay0"] = fmt;
+    fmt.setForeground(QColor::fromString("#acb0be"));
+    colors["surface2"] = fmt;
+    fmt.setForeground(QColor::fromString("#bcc0cc"));
+    colors["surface1"] = fmt;
+    fmt.setForeground(QColor::fromString("#ccd0da"));
+    colors["surface0"] = fmt;
+    fmt.setForeground(QColor::fromString("#eff1f5"));
+    colors["base"] = fmt;
+    fmt.setForeground(QColor::fromString("#e6e9ef"));
+    colors["mantle"] = fmt;
+    fmt.setForeground(QColor::fromString("#dce0e8"));
+    colors["crust"] = fmt;
+    return colors;
+}
+void YoyoHighlighter::initCatppuccin() {
+    // auto colors = getCatppuccinMocha();
+    auto colors = getCatppuccinLatte();
     hl_theme["keyword.modifier"] = colors["mauve"];
     hl_theme["keyword.function"] = colors["mauve"];
     hl_theme["keyword.return"] = colors["mauve"];

@@ -8,12 +8,28 @@ Item {
     required property var edges
     required property var iR
     required property string graphName
+    property int xoff: 0
+    property int yoff: 0
+
+    function recalc_off() {
+        root.xoff = (root.width - root.ck_model.getBBWidth(root.graphName)) / 2
+        root.yoff = (root.height - root.ck_model.getBBHeight(root.graphName)) / 2
+    }
+    onWidthChanged: { recalc_off() }
+    onHeightChanged: { recalc_off() }
+    Connections {
+        target: root.edges
+        function onModelReset() { root.recalc_off() }
+    }
     Repeater {
+        anchors.centerIn: parent
         model: root.edges
         delegate: Shape {
             id: edge
             required property var model
             preferredRendererType: Shape.CurveRenderer
+            x: root.xoff
+            y: root.yoff
             Instantiator {
                 model: (edge.model.points.length - 1) / 3
                 onObjectAdded: (index, object) => path.pathElements.push(object)
@@ -30,7 +46,7 @@ Item {
                 }
             }
             ShapePath {
-                strokeColor: "#fff"
+                strokeColor: "#4c4f69"
                 id: path
                 startX: edge.model.points[0].x
                 startY: edge.model.points[0].y
@@ -46,20 +62,22 @@ Item {
     }
 
     Repeater {
+        anchors.centerIn: parent
         model: root.iR
         delegate: Rectangle {
             required property var model
             required property int index
             id: parentRect
-            x: model.posx - (width / 2)
-            y: model.posy - (height / 2)
+            x: model.posx - (width / 2) + root.xoff
+            y: model.posy - (height / 2) + root.yoff
 
             width: model.width
             height: model.height
 
             radius: 5
 
-            color: "#440000"
+            color: "#eff1f5"
+            border.color: "#4c4f69"
 
             Component.onCompleted: {
                 if (!model.isLaidOut) {
@@ -79,7 +97,7 @@ Item {
                         Text {
                             text: instruction.model.display
                             font.family: "JetBrains Mono NF"
-                            color: "#fff"
+                            color: "#4c4f69"
                         } 
 
                     }

@@ -198,6 +198,32 @@ struct BCFunctionModel : public QAbstractListModel {
         }
     }
 };
+int BorrowCheckerModel::getBBWidth(QString graph) const {
+    Agraph_t* gvgraph;
+    if (graph == "initialIR") {
+        gvgraph = initialIR;
+    } else if (graph == "domainIR") {
+        gvgraph = domainIR;
+    } else if (graph == "ssaIR") {
+        gvgraph = ssaIR;
+    } else std::unreachable();
+    if (!gvgraph) return 0;
+    return GD_bb(gvgraph).UR.x;
+}
+int BorrowCheckerModel::getBBHeight(QString graph) const {
+    Agraph_t* gvgraph;
+    if (graph == "initialIR") {
+        gvgraph = initialIR;
+    } else if (graph == "domainIR") {
+        gvgraph = domainIR;
+    } else if (graph == "ssaIR") {
+        gvgraph = ssaIR;
+    } else std::unreachable();
+
+    if (!gvgraph) return 0;
+    return GD_bb(gvgraph).UR.y;
+}
+
 void BorrowCheckerModel::setNodeSize(QString graph, int index, double w, double h) {
     if (graph == "initialIR") {
         auto node = agnode(initialIR, state->initial_IR->blocks[index]->debug_name.data(), false);

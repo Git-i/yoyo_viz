@@ -14,19 +14,20 @@ Item {
             // height: 300
             id: listItem
             required property var model
+            required property int index
+            Rectangle {
+                anchors.fill: parent
+                color: parent.index % 2 == 0 ? "#eff1f5" : "#8c8fa1"
+            }
             RowLayout { 
                 id: row
                 width: parent.width
-                Rectangle {
-                    Layout.alignment: Qt.AlignCenter
-                    // Layout.preferredHeight: 200
-                    Layout.preferredWidth: parent.width / 2
-                    color: "white"
-                    Text { 
-                        anchors.fill: parent
-                        text: listItem.model.substitution.getType()
-                        font.pointSize: 12
-                    }
+                Text { 
+                    Layout.fillHeight: true
+                    Layout.preferredWidth: row.width / 2
+                    text: listItem.model.substitution.getType()
+                    font.pointSize: 12
+                    color: "#4c4f69"
                 }
                 ListView {
                     Layout.preferredWidth: contentWidth
@@ -38,7 +39,7 @@ Item {
                         required property var model
                         text: model.display
                         font.pointSize: 12
-                        color: '#fff'
+                        color: '#4c4f69'
                     }
                 }
             }

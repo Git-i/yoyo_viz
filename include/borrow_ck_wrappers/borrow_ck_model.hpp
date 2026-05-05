@@ -20,6 +20,7 @@ struct BorrowCheckerModel : public QObject {
     Q_PROPERTY(QAbstractItemModel* ptgraphEdges READ getPtgraphEdges NOTIFY dataChanged)
     Q_PROPERTY(QAbstractItemModel* flowGraph READ getFlowGraph NOTIFY dataChanged)
     Q_PROPERTY(QAbstractItemModel* flowGraphEdges READ getFlowGraphEdges NOTIFY dataChanged)
+
 public:
     BorrowCheckerModel(QObject* parent = nullptr): QObject(parent) {
         gvc = gvContext();
@@ -37,6 +38,8 @@ public:
     Q_INVOKABLE QAbstractItemModel* getFlowGraph() const;
     Q_INVOKABLE QAbstractItemModel* getFlowGraphEdges() const;
     Q_INVOKABLE void setNodeSize(QString graphName, int index, double width, double height);
+    Q_INVOKABLE int getBBWidth(QString graphName) const;
+    Q_INVOKABLE int getBBHeight(QString graphName) const;
 private:
     void compilerStatusChanged();
     void initGraphFor(Agraph_t*& graph, Yoyo::BorrowChecker::BorrowCheckerFunction* func);

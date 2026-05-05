@@ -15,9 +15,8 @@ Item {
         id: state
         document: root.document
     }
-    Column {
-        width: parent.width
-        height: parent.height
+    ColumnLayout {
+        anchors.fill: parent
         Text {
             text: {
                 switch(state.status) {
@@ -32,7 +31,7 @@ Item {
         }
         TabBar {
             id: tab
-            width: parent.width
+            Layout.fillWidth: true
             TabButton {
                 text: "Parser Output"
             }
@@ -44,13 +43,13 @@ Item {
             }
         }
         StackLayout {
-            width: parent.width
-            height: parent.height
+            Layout.fillWidth: true; Layout.fillHeight: true
             ParserOutput {
                 id: parserViewer
                 state: state
             }
             TypeCheckerViewer {
+                Layout.fillHeight: true; Layout.fillWidth: true
                 compiler: state
             }
             BorrowCheckerViewer {

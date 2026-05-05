@@ -5,6 +5,7 @@ import QtQuick.Controls
 import com.yoyoviz.cpp 1.0
 Item {
     id: root
+    anchors.fill: parent
     required property CompilerState compiler
     BorrowCheckerModel {
         id: bck_model
@@ -15,6 +16,7 @@ Item {
         anchors.fill: parent
         TabBar {
             id: tab
+            Layout.fillWidth: true
             TabButton {
                 text: "Initial IR"
             }
