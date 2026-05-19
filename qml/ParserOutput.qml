@@ -16,8 +16,11 @@ Item {
         id: treeView
         model: treeModel
         selectionModel: ItemSelectionModel{}
+        columnWidthProvider: function(column) {
+            // In a single-column tree, make the column equal to the view width
+            return treeView.width 
+        }
         delegate: TreeViewDelegate{
-
         }
     }
 }

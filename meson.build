@@ -29,7 +29,8 @@ headers = [
     'include/type_checker_wrappers/type_checker_state_model.hpp',
     'include/type_checker_wrappers/subst_info_object.hpp',
     'include/type_checker_wrappers/subst_list_model.hpp',
-    'include/borrow_ck_wrappers/borrow_ck_model.hpp'
+    'include/borrow_ck_wrappers/borrow_ck_model.hpp',
+    'include/error_parser.hpp'
 ]
 sources = [
     'yoyo_viz.cpp',
@@ -41,7 +42,8 @@ sources = [
     'src/type_checker_wrappers/type_checker_model.cpp',
     'src/type_checker_wrappers/subst_list_model.cpp',
     'src/type_checker_wrappers/subst_info_object.cpp',
-    'src/borrow_ck_wrappers/borrow_ck_model.cpp'
+    'src/borrow_ck_wrappers/borrow_ck_model.cpp',
+    'src/error_parser.cpp'
 ]
 inc = ['include/', 'include/type_checker_wrappers', 'include/borrow_ck_wrappers']
 sources += qt6.qml_module(
@@ -58,7 +60,8 @@ sources += qt6.qml_module(
         'qml/SubstitutionListViewer.qml',
         'qml/BorrowCheckerViewer.qml',
         'qml/BorrowCheckerIRViewer.qml',
-        'qml/PointsToGraphViewer.qml'
+        'qml/PointsToGraphViewer.qml',
+        'qml/ErrorView.qml'
     ],
 )
 sources += qt6.qml_module(

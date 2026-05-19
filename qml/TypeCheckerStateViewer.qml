@@ -13,6 +13,7 @@ Item {
                 text: "Active Constraints"
                 font.pointSize: 12
                 color: '#4c4f69'
+                anchors.horizontalCenter: parent.horizontalCenter
             }
             ConstraintListViewer {
                 width: parent.width
@@ -27,6 +28,7 @@ Item {
                 text: "Generated Constraints"
                 font.pointSize: 12
                 color: '#4c4f69'
+                anchors.horizontalCenter: parent.horizontalCenter
             }
             ConstraintListViewer {
                 width: parent.width

@@ -25,10 +25,11 @@ void CompilerState::compile() {
             return Yoyo::StatementTreeCloner::copy_stat(in.get(), nullptr);
         }), std::back_inserter(syntax_tree));
         auto result = engine.compile();
-        if (!result.is_successful()) {
+        auto failed = !result.is_successful();
+        this->output = std::move(result.compiled_modules[mod]);
+        if (failed) {
             setStatus(Error); return;
         }
-        this->output = std::move(result.compiled_modules[mod]);
         setStatus(Ready);
     });
     compilation_thread.swap(temp);

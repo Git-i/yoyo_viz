@@ -32,7 +32,7 @@ Item {
 
                     delegate: Label {
                         required property int index
-                        color: '#4c4f69'
+                        color: '#ccd0da'
                         font: edit.font
                         width: lineNumberColumn.width
                         height: edit.contentHeight / lineNumbers.count
@@ -59,7 +59,7 @@ Item {
             }
 
             background: Rectangle {
-                color: "#ccd0da"
+                color: "#e6e9ef"
             }
 
             FontMetrics {
@@ -79,12 +79,33 @@ Item {
                     width: flickable.width
                     font.family: 'JetBrainsMono NF'
                     font.pointSize: 12
-                    text: `main: fn -> i32 = {
-    val: i32 = 100;
-    val2: &i32 = &val;
-    if (*val2 == 100) { return 200; }
-    return 400;
+                    text: `Packet: union = {
+	Init: InitData,
+	Message: str,
+	InitData: struct = {
+		user_name: str,
+		password: str
+	}
+}
+
+main: fn = {
+	packet: mut = Packet::Init(Packet::InitData{
+		.user_name = "some_user",
+        .password = "some_password",
+	});
+	init_ref := if |&init| (packet as Init) 
+		init as _? else null;
+	default_user := "default_user";
+	user_ref := if |init_data| (init_ref)
+		&init_data.user_name
+	else &default_user;
 }`
+//                     text: `main: fn -> i32 = {
+//     val: i32 = 100;
+//     val2: &i32 = &val;
+//     if (*val2 == 100) { return 200; }
+//     return 400;
+// }`
                     color: '#4c4f69'
                     tabStopDistance: fontMetrics.averageCharacterWidth * 4
                     Component.onCompleted: {

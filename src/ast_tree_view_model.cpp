@@ -23,6 +23,14 @@ struct GetChildrenVisitor {
         if(expr->expr) result.push_back(expr->expr.get());
         return result;
     }
+    std::vector<Yoyo::ASTNode*> operator()(Yoyo::IfExpression* expr) {
+        std::vector<Yoyo::ASTNode*> result{
+            expr->condition.get(),
+            expr->then_expr.get(),
+        };
+        if (expr->else_expr) result.push_back(expr->else_expr.get());
+        return result;
+    }
     std::vector<Yoyo::ASTNode*> operator()(Yoyo::BinaryOperation* expr) {
         return {
             expr->lhs.get(),
@@ -159,8 +167,59 @@ struct GetDataVisitor {
     std::string operator()(Yoyo::BlockExpression*) {
         return "block";
     }
+    std::string operator()(Yoyo::IfExpression* expr) {
+        return std::format("if expression");
+    }
     std::string operator()(Yoyo::IntegerLiteral* lit) {
         return std::format("int: {}", lit->text);
+    }
+    std::string operator()(Yoyo::PrefixOperation* lit) {
+        auto tok_str = std::string_view{};
+        switch (lit->op.type) {
+        using enum Yoyo::TokenType;
+        case Minus: tok_str = "-"; break;
+        case Star: tok_str = "*"; break;
+        case Ampersand: tok_str = "&"; break;
+        case RefMut: tok_str = "&mut"; break;
+        default: std::unreachable();
+        }
+
+        return std::format("Prefix Operation: {}", tok_str);
+    }
+    std::string operator()(Yoyo::NameExpression* nm) {
+        return std::format("name: {}", nm->text);
+    }
+    std::string operator()(Yoyo::BinaryOperation* bexp) {
+        auto tk_str = std::string_view{};
+        switch (bexp->op.type) {
+        using enum Yoyo::TokenType;
+        case Plus: tk_str = "+";break;
+        case Minus: tk_str = "-"; break;
+        case Star: tk_str = "*"; break;
+        case Slash: tk_str = "/"; break;
+        case Percent: tk_str = "%"; break;
+        case DoubleEqual: tk_str = "=="; break;
+        case BangEqual: tk_str = "!="; break;
+        case Greater: tk_str = ">"; break;
+        case GreaterEqual: tk_str = ">="; break;
+        case LessEqual: tk_str = "<="; break;
+        case Less: tk_str = "<"; break;
+        case Spaceship: tk_str = "<=>"; break;
+        case Dot: tk_str = "."; break;
+        case DoubleLess: tk_str = "<<"; break;
+        case DoubleGreater: tk_str = ">>"; break;
+        case DoubleDot: tk_str = ".."; break;
+        case DoubleDotEqual: tk_str = "..="; break;
+        case Equal: tk_str = "="; break;
+        default: std::unreachable();
+        }
+        return std::format("binary operation: {}", tk_str);
+    }
+    std::string operator()(Yoyo::VariableDeclaration* var_decl) {
+        return std::format(
+            "variable declaration: {}",
+            var_decl->identifier.text
+        );
     }
     std::string operator()(Yoyo::Statement*) { return "unlimplemented statement"; }
     std::string operator()(Yoyo::ReturnStatement* stat) {
@@ -170,13 +229,18 @@ struct GetDataVisitor {
     std::string operator()(Yoyo::ExpressionStatement* stat) {
         return "expression statement";
     }
+    std::string operator()(Yoyo::ClassDeclaration* stat) {
+        return std::format("struct decl: {}, {}", stat->name, stat->vars | std::views::transform([](Yoyo::ClassVariable& var) {
+            return std::format("{} -> {}", var.name, var.type.full_name());
+        }));
+    }
     std::string operator()(Yoyo::FunctionDeclaration* stat) {
         return std::format("function decl: {}", stat->name);
     }
     QVariant get_data(Yoyo::ASTNode* node, RootStatement* root_stat) {
         if (auto as_expr = dynamic_cast<Yoyo::Expression*>(node)) {
             auto content = std::visit(*this, as_expr->toVariant());
-            return QString::fromStdString(std::format("[expr:{}] {}", as_expr->evaluated_type.full_name(), content));
+            return QString::fromStdString(std::format("{}", content));
         } else if (node == root_stat) {
             return "root node";
         } else if (auto as_stat = dynamic_cast<Yoyo::Statement*>(node)) {

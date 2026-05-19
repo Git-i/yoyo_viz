@@ -4,28 +4,29 @@ import com.yoyoviz.cpp 1.0
 Item {
     id: root
     required property ConstraintListModel listModel
-    Rectangle {
-        anchors.fill: parent
-        color: '#8c8fa1'
-    }
+    // Rectangle {
+    //     anchors.fill: parent
+    //     color: '#8c8fa1'
+    // }
     ListView {
         anchors.fill: parent
         id: constraints
         model: root.listModel
         delegate: Item {
             required property var model
+            required property var index
             id: col
-            width: col_child.width; height: col_child.height
+            width: ListView.view.width; height: col_child.height
 
             Column {
                 id: col_child
                 Rectangle {
                     height: childrenRect.height
-                    width: childrenRect.width
-                    color: '#00000000'
+                    width: col.width
+                    color: col.index % 2 == 0 ? "#eff1f5" : "#e6e9ef"
                     Text {
                         font.pointSize: 12
-                        color: '#4c4f69'
+                        // color: '#4c4f69'
                         text: col.model.constraint.description()
                     }
                     MouseArea {

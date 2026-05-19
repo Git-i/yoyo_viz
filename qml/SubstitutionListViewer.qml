@@ -17,7 +17,7 @@ Item {
             required property int index
             Rectangle {
                 anchors.fill: parent
-                color: parent.index % 2 == 0 ? "#eff1f5" : "#8c8fa1"
+                color: parent.index % 2 == 0 ? "#eff1f5" : "#e6e9ef"
             }
             RowLayout { 
                 id: row

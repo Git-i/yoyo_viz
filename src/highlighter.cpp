@@ -40,6 +40,18 @@ static void populate_edit_points(TSInputEdit& edit, const std::string& text) {
     }
 }
 void YoyoHighlighter::refreshHighlights(int position, int removed, int added) {
+    // just rehighlight the entire doc
+    {
+        auto content = document()->toPlainText().toStdString();
+        auto tree = ts_parser_parse_string(parser, nullptr, content.c_str(), content.size());
+        highlights.clear();
+        runQueries(ts_tree_root_node(tree));
+        auto doc = document();
+        for (auto blk = doc->firstBlock(); blk.isValid(); blk = blk.next()) {
+            rehighlightBlock(blk);
+        }
+        return;
+    }
     std::println("pos: {}, removed: {}, added: {}", position, removed, added);
     auto content = document()->toPlainText().toStdString();
     if (added > content.size()) added = content.size();
@@ -222,6 +234,7 @@ void YoyoHighlighter::initCatppuccin() {
     hl_theme["keyword.return"] = colors["mauve"];
     hl_theme["keyword.repeat"] = colors["mauve"];
     hl_theme["keyword.type"] = colors["mauve"];
+    hl_theme["keyword.conditional"] = colors["mauve"];
     hl_theme["comment"] = colors["overlay2"];
     hl_theme["type"] = colors["yellow"];
     hl_theme["variable.member"] = colors["flamingo"];
@@ -230,6 +243,12 @@ void YoyoHighlighter::initCatppuccin() {
     hl_theme["number"] = colors["peach"];
     hl_theme["variable.builtin"] = colors["red"];
     hl_theme["domain"] = colors["green"];
+    hl_theme["boolean"] = colors["peach"];
+    hl_theme["null"] = colors["peach"];
+    hl_theme["operator"] = colors["sky"];
+    hl_theme["delim"] = colors["overlay2"];
+    hl_theme["str_escape"] = colors["pink"];
+    hl_theme["str_cap"] = colors["pink"];
 }
 void YoyoHighlighter::highlightBlock(const QString& text) {
     auto blk = currentBlock();
@@ -239,7 +258,7 @@ void YoyoHighlighter::highlightBlock(const QString& text) {
         if (blk_pos <= hl.start_byte && hl.start_byte <= (blk_pos + blk_size)) {
             auto num_chars = hl.end_byte - hl.start_byte;
             auto count = std::min(num_chars, blk_size - (hl.start_byte - blk_pos));
-            std::println("blk_pos {} blk_size {} hl: start {} end {}", blk_pos, blk_size, hl.start_byte, hl.end_byte);
+            // std::println("blk_pos {} blk_size {} hl: start {} end {}", blk_pos, blk_size, hl.start_byte, hl.end_byte);
             setFormat(hl.start_byte - blk_pos, count, hl_theme[hl.capture_name]);
         }
     }
@@ -255,4 +274,5 @@ void YoyoHighlighter::buildQueries() {
         return query;
     };
     highlightQueries.push_back(query(hl_query));
+    highlightQueries.push_back(query(call_queries));
 }

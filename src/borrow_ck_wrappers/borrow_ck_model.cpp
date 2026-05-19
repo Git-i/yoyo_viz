@@ -206,6 +206,10 @@ int BorrowCheckerModel::getBBWidth(QString graph) const {
         gvgraph = domainIR;
     } else if (graph == "ssaIR") {
         gvgraph = ssaIR;
+    } else if (graph == "auxPTG") {
+        gvgraph = ptgraph;
+    } else if (graph == "finalPTG") {
+        gvgraph = flowGraph;
     } else std::unreachable();
     if (!gvgraph) return 0;
     return GD_bb(gvgraph).UR.x;
@@ -218,6 +222,10 @@ int BorrowCheckerModel::getBBHeight(QString graph) const {
         gvgraph = domainIR;
     } else if (graph == "ssaIR") {
         gvgraph = ssaIR;
+    } else if (graph == "auxPTG") {
+        gvgraph = ptgraph;
+    } else if (graph == "finalPTG") {
+        gvgraph = flowGraph;
     } else std::unreachable();
 
     if (!gvgraph) return 0;

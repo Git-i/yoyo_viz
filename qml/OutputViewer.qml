@@ -6,6 +6,7 @@ Item {
     id: root
     required property TextDocument document
     property var compile
+    property alias compiler: state
     Component.onCompleted: {
         compile = function () {
             state.compile()
@@ -17,18 +18,6 @@ Item {
     }
     ColumnLayout {
         anchors.fill: parent
-        Text {
-            text: {
-                switch(state.status) {
-                    case CompilerState.Empty: return "Empty";
-                    case CompilerState.Ready: return "Ready";
-                    case CompilerState.Error: return "Error";
-                    case CompilerState.Compiling: return "Compiling...";
-                }
-            }
-            color: "#fff"
-            font.pointSize: 12
-        }
         TabBar {
             id: tab
             Layout.fillWidth: true

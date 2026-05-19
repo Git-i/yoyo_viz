@@ -67,7 +67,7 @@ private:
     std::unique_ptr<QAbstractItemModel> ssaIRModel;
     std::unique_ptr<QAbstractItemModel> ssaIREdgeModel;
 
-    Agraph_t *ptgraph, *flowGraph;
+    Agraph_t *ptgraph = nullptr, *flowGraph = nullptr;
     std::unique_ptr<QAbstractItemModel> ptgraphModel, flowGraphModel;
     std::unique_ptr<QAbstractItemModel> ptgraphEdgeModel, flowGraphEdgeModel;
 signals:
